@@ -1,0 +1,66 @@
+set attacker = active. (* The attacker can read, modify and drop the messages *)
+set ignoreTypes = false. (* Make verif faster *)
+set traceDisplay = long. (* Make the attack trace more understandable *)
+
+type key. (* Type for shared key between car and fob *)
+
+free car_key:key [private]. (* Shared key between car and fob *)
+
+fun hmac(nat, key): bitstring. (* HMAC of the counter with the key *)
+
+free radio_channel:channel. (* Radio exchanges between fob and car *)
+free visual_car_open:channel. (* This channel models the fact that "the car owner sees the car open". We made this channel public to model the fact that the attacker can press the key twice.*)
+free car_counter:channel [private]. (* Virtual channel where the car increments its own counter *)
+
+
+event car_open. (* The car is open *)
+event fob_pressed(nat). (* The fob is pressed, includes fob's internal counter (for debugging purpose) *)
+event car_startup. (* The car can accept messages from the fob (for debugging purpose) *)
+event normal_open(nat). (* The car opens in "normal mode", includes car's internal counter (for debugging purpose) *)
+event learning_open. (* The car opens in "learning mode" (for debugging purpose) *)
+
+query attacker(car_key). (* The attacker can learn the shared key? *)
+query n:nat; inj-event(car_open) ==> inj-event(fob_pressed(n)). (* Each car open implies that only one keyfob press occurred? *)
+(*query event(car_startup).*)
+(*query n:nat; event(normal_open(n)).*)
+
+(* Car process: receiving car counter forces the successive car processes to run sequentially and not in parallel, thus avoiding counter race condition that cannot exist in real car *)
+let Car(k:key) =
+    in(car_counter, ctr:nat);
+    event car_startup;
+    in(radio_channel, (auth_message:bitstring, auth_counter:nat));
+    if (auth_message = hmac(auth_counter, k)) && (auth_counter >= ctr) && (auth_counter < ctr + 16) then (
+      event normal_open(ctr);
+      event car_open;
+      out(visual_car_open, true);
+      out(car_counter, auth_counter + 1)
+    )
+    else (
+      out(visual_car_open, false);
+      in(radio_channel, (auth_message2:bitstring, auth_counter2:nat));
+      if (auth_counter2 = auth_counter+1) && (auth_counter < ctr) && (auth_message = hmac(auth_counter, k)) && (auth_message2 = hmac(auth_counter2, k)) then ( (* Here we simplified the "learning process": the car is supposed to decrypt the encrypted data using master key *)
+        event learning_open;
+        out(visual_car_open, true);
+        event car_open;
+        out(car_counter, auth_counter2 + 1)
+      ) else (
+        out(visual_car_open, false)
+        )
+    ).
+
+(* Key fob process *)
+let Fob(k:key) =
+    let ctr=0 in (* Init fob counter at 0 *)
+    event fob_pressed(0); (* The legitimate car owner presses the fob (counter = 0) *)
+    out(radio_channel, (hmac(ctr, car_key), ctr)); (* The fob sends HMAC digest of its counter computed using the shared key, as well as the counter value. This is a simplified representation as everything should be encrypted using the master key *)
+    in(visual_car_open, see_car_open:bool); (* The car owner checks that the car is open *)
+    if see_car_open = false then (* If the car is still closed, the angry car owner presses the fob again *)
+      event fob_pressed(1); (* The legitimate car owner presses the fob again (counter = 1) *)
+      out(radio_channel, (hmac(ctr + 1, car_key), ctr + 1)). (* The fob sends again HMAC digest of its counter computed using the shared key, as well as the counter value *)
+
+(* Virtual process to increment car's counter *)
+let StartupCar() =
+    out(car_counter, 0). (* Setup the car counter to 0 *)
+
+process
+    StartupCar() | !Car(car_key) | Fob(car_key) (* Initiate car counter once, car process in a loop and key fob once *)

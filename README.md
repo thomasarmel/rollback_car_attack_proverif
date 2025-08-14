@@ -1,6 +1,6 @@
 # Rollback attack formal verif
 
-_ProVerif proof pf concept of the Rollback attack on car keyfob, presented in [[1]](#1)_
+_ProVerif proof of concept of the Rollback attack on car keyfob, presented in [[1]](#1)_
 
 ---
 

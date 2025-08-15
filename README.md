@@ -1,6 +1,6 @@
 # Rollback attack formal verif
 
-_ProVerif proof of concept of the Rollback attack on car keyfob, presented in [[1]](#1)_
+_ProVerif proof of concept of the Rollback attack on car keyfob (CVE-2022-37418, CVE-2022-36945 and CVE-2022-37305), presented in [[1]](#1)_
 
 ---
 
@@ -71,7 +71,7 @@ On Windows, you can download the installer at https://graphviz.org/download/ . M
 To generate the graph detailing the attack, run
 
 ```bash
-./proverif -graph . model.pv
+proverif -graph . model.pv
 ```
 
 Now open the generated pdf file, and see how the attacker can trigger car opening without the key fob being pressed:

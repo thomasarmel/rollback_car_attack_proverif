@@ -26,25 +26,25 @@ query n:nat; inj-event(car_open) ==> inj-event(fob_pressed(n)). (* Each car open
 
 (* Car process: receiving car counter forces the successive car processes to run sequentially and not in parallel, thus avoiding counter race condition that cannot exist in real car *)
 let Car(k:key) =
-    in(car_counter, ctr:nat);
-    event car_startup;
+    in(car_counter, ctr:nat); (* Receive current counter value. Also ensure that the car processes run sequentially *)
+    event car_startup; (* This event means that the car is ready to receive radio messages *)
     in(radio_channel, (auth_message:bitstring, auth_counter:nat));
-    if (auth_message = hmac(auth_counter, k)) && (auth_counter >= ctr) && (auth_counter < ctr + 16) then (
-      event normal_open(ctr);
-      event car_open;
-      out(visual_car_open, true);
-      out(car_counter, auth_counter + 1)
+    if (auth_message = hmac(auth_counter, k)) && (auth_counter >= ctr) && (auth_counter < ctr + 16) then ( (* Check that received counter has been authentified using shared key, received counter is at least equal to current car counter and the difference between car and fob counter is less than 16 (for debugging purpose) *)
+      event normal_open(ctr); (* This event means that the car opens "normally" (for debugging purpose) *)
+      out(visual_car_open, true); (* The car triggers the lighting and emits a sound, so the car owner knows his car is open *)
+      event car_open; (* This event means that the car is open *)
+      out(car_counter, auth_counter + 1) (* Increase car counter value, and "unlock" next car process *)
     )
     else (
-      out(visual_car_open, false);
-      in(radio_channel, (auth_message2:bitstring, auth_counter2:nat));
-      if (auth_counter2 = auth_counter+1) && (auth_counter < ctr) && (auth_message = hmac(auth_counter, k)) && (auth_message2 = hmac(auth_counter2, k)) then ( (* Here we simplified the "learning process": the car is supposed to decrypt the encrypted data using master key *)
-        event learning_open;
-        out(visual_car_open, true);
-        event car_open;
-        out(car_counter, auth_counter2 + 1)
+      out(visual_car_open, false); (* The car doesn't triger lightings and doesn't emit any sound, so the car owner knows is car is still closed *)
+      in(radio_channel, (auth_message2:bitstring, auth_counter2:nat)); (* Accept new authenticated counter from the key fob, that could trigger the "learning mode" *)
+      if (auth_counter2 = auth_counter+1) && (auth_counter < ctr) && (auth_message = hmac(auth_counter, k)) && (auth_message2 = hmac(auth_counter2, k)) then ( (* Here we simplified the "learning process": the car is supposed to decrypt the encrypted data using master key: checks that the first and the second received counter message from the fob were authenticated using shared key, and the second received counter is equal to the first plus one*)
+        event learning_open; (* This event means that the car opens after "learning process" (for debugging purpose) *)
+        out(visual_car_open, true); (* The car triggers the lighting and emits a sound, so the car owner knows his car is open *)
+        event car_open; (* This event means that the car is open *)
+        out(car_counter, auth_counter2 + 1) (* Increase car counter value starting from the received counter during "learning process", and "unlock" next car process *)
       ) else (
-        out(visual_car_open, false)
+        out(visual_car_open, false) (* The car doesn't triger lightings and doesn't emit any sound, so the car owner knows is car is still closed *)
         )
     ).
 

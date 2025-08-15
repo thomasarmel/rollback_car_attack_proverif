@@ -19,7 +19,7 @@ To run the ProVerif formal verif PoC, first install ProVerif by following the in
 
 #### Prebuilt binary
 
-Alternatively, I pre-compiled a static binary for Linux on amd64 architecture, available on the [release page of the repository](https://github.com/thomasarmel/rollback_car_attack_proverif/releases/tag/proverif_static).
+Alternatively, I pre-compiled a static binary for Linux on amd64 architecture, available on the [release page of the repository](https://github.com/thomasarmel/rollback_car_attack_proverif/releases/tag/proverif_static). There is also the executable for Windows.
 
 Make sure to add execution permission to the downloaded the executable:
 
@@ -49,6 +49,24 @@ You should see that the opening of the car doesn't imply that the key fob has be
 Exactly, this query means that it is possible to trigger the opening mechanism a number of times greater than the number of presses on the key fob.
 
 ### Generating the graph of the attack
+
+#### Graphviz
+
+In order to generate the trace pdf, ProVerif needs graphviz being installed and added to the system PATH.
+
+You can install it on Linux using:
+
+```bash
+sudo apt update
+sudo apt install graphviz
+```
+
+On Windows, you can download the installer at https://graphviz.org/download/ . Make sure to add the installation folder to the system PATH:
+
+![Add installation folder to the system PATH during Graphviz installation on Windows](assets/graphviz_install_windows_path_screen.png)
+
+
+#### Graph generation
 
 To generate the graph detailing the attack, run
 

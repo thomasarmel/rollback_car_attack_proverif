@@ -8,16 +8,14 @@ _ProVerif proof of concept of the Rollback attack on car keyfob (CVE-2022-37418,
 
 I have no connection with the authors of [[1]](#1). I am grateful to them for making their paper open access.
 
-## Usage
+## ProVerif installation
 
-### ProVerif installation
-
-#### Official method
+### Official method
 
 To run the ProVerif formal verif PoC, first install ProVerif by following the instructions on [the official page](https://bblanche.gitlabpages.inria.fr/proverif/).
 
 
-#### Prebuilt binary
+### Prebuilt binary
 
 Alternatively, I pre-compiled a static binary for Linux on amd64 architecture, available on the [release page of the repository](https://github.com/thomasarmel/rollback_car_attack_proverif/releases/tag/proverif_static). There is also the executable for Windows.
 
@@ -27,7 +25,7 @@ Make sure to add execution permission to the downloaded the executable:
 chmod +x proverif_linux_amd64_static
 ```
 
-## Run
+## Usage
 
 ### Clone the repository
 

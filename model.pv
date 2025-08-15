@@ -19,7 +19,7 @@ event car_startup. (* The car can accept messages from the fob (for debugging pu
 event normal_open(nat). (* The car opens in "normal mode", includes car's internal counter (for debugging purpose) *)
 event learning_open. (* The car opens in "learning mode" (for debugging purpose) *)
 
-query attacker(car_key). (* The attacker can learn the shared key? *)
+(* query attacker(car_key). *) (* The attacker can learn the shared key? *)
 query n:nat; inj-event(car_open) ==> inj-event(fob_pressed(n)). (* Each car open implies that only one keyfob press occurred? *)
 (*query event(car_startup).*)
 (*query n:nat; event(normal_open(n)).*)

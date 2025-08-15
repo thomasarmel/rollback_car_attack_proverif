@@ -48,6 +48,26 @@ You should see that the opening of the car doesn't imply that the key fob has be
 
 Exactly, this query means that it is possible to trigger the opening mechanism a number of times greater than the number of presses on the key fob.
 
+#### Need to press the key fob
+
+We can notice that while the query
+
+```proverif
+inj-event(car_open) ==> inj-event(fob_pressed)
+```
+
+returns `false`, Proverif tells us that the query
+
+```proverif
+event(car_open) ==> event(fob_pressed)
+```
+
+would have returned `true`:
+
+![inj-event(car_open) ==> inj-event(fob_pressed) is false but event(car_open) ==> event(fob_pressed) is true](assets/attack_event_true_screen.png)
+
+It means that the fob must be pressed to open the car, but the car can be opened a number of times grater than the number of key fob presses.
+
 ### Generating the graph of the attack
 
 #### Graphviz

@@ -70,7 +70,7 @@ It means that the fob must be pressed to open the car, but the car can be opened
 
 #### Graphviz
 
-In order to generate the trace pdf, ProVerif needs graphviz being installed and added to the system PATH.
+In order to generate the trace pdf, ProVerif needs graphviz being installed and added to the PATH env variable.
 
 You can install it on Linux using:
 
@@ -79,9 +79,9 @@ sudo apt update
 sudo apt install graphviz
 ```
 
-On Windows, you can download the installer at https://graphviz.org/download/ . Make sure to add the installation folder to the system PATH:
+On Windows, you can download the installer at https://graphviz.org/download/ . Make sure to add the installation folder to the PATH env variable:
 
-![Add installation folder to the system PATH during Graphviz installation on Windows](assets/graphviz_install_windows_path_screen.png)
+![Add installation folder to the PATH env variable during Graphviz installation on Windows](assets/graphviz_install_windows_path_screen.png)
 
 
 #### Graph generation
